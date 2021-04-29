@@ -19,8 +19,9 @@ import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.*
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -99,6 +100,7 @@ fun SessionsListStateRenderer(
         state.list?.let {
             SessionsList(
                 list = it,
+                highlightText = state.searchText,
                 onSearchTextChanged = onSearchTextChanged,
                 onCardClick = onCardClick,
                 onFavouriteClick = onFavouriteClick
@@ -128,6 +130,7 @@ fun SessionsListStateRenderer(
 @Composable
 fun SessionsList(
     list: List<SessionUiModel>,
+    highlightText: String?,
     onSearchTextChanged: (String) -> Unit,
     onCardClick: (Session) -> Unit,
     onFavouriteClick: (Session, newValue: Boolean) -> Unit
@@ -150,7 +153,8 @@ fun SessionsList(
                         session = item.session,
                         isFavourite = item.isFavourite,
                         onCardClick = onCardClick,
-                        onFavouriteClick = onFavouriteClick
+                        onFavouriteClick = onFavouriteClick,
+                        highlightText = highlightText
                     )
                 }
             }
@@ -184,7 +188,8 @@ fun SessionCardUiModel(
     session: Session,
     isFavourite: Boolean,
     onCardClick: (Session) -> Unit,
-    onFavouriteClick: (Session, newValue: Boolean) -> Unit
+    onFavouriteClick: (Session, newValue: Boolean) -> Unit,
+    highlightText: String? = null
 ) {
     SessionCard(
         painter = rememberGlidePainter(request = session.imageUrl),
@@ -193,7 +198,8 @@ fun SessionCardUiModel(
         description = session.description,
         isFavourite = isFavourite,
         onCardClick = { onCardClick(session) },
-        onFavouriteClick = { onFavouriteClick(session, it) }
+        onFavouriteClick = { onFavouriteClick(session, it) },
+        highlightText = highlightText
     )
 }
 
@@ -205,7 +211,8 @@ fun SessionCard(
     description: String,
     isFavourite: Boolean,
     onCardClick: () -> Unit,
-    onFavouriteClick: (newValue: Boolean) -> Unit
+    onFavouriteClick: (newValue: Boolean) -> Unit,
+    highlightText: String? = null
 ) {
     Card(
         modifier = Modifier
@@ -228,7 +235,7 @@ fun SessionCard(
             Spacer(modifier = Modifier.width(8.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    speaker,
+                    getHighlightedString(speaker, highlightText),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     style = TextStyle(
@@ -246,7 +253,7 @@ fun SessionCard(
                     ),
                 )
                 Text(
-                    description,
+                    getHighlightedString(description, highlightText),
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                     style = TextStyle(
@@ -298,5 +305,31 @@ fun PreviewSessionCard() {
 fun DarkPreviewSessionCard() {
     ThemedPreview(darkTheme = true) {
         PreviewSessionCard()
+    }
+}
+
+@Composable
+fun getHighlightedString(text: String, highlightText: String?): AnnotatedString {
+    return if (highlightText == null) {
+        buildAnnotatedString { append(text) }
+    } else {
+        buildAnnotatedString {
+            if (text.contains(highlightText, ignoreCase = true)) {
+                val lowercase = text.toLowerCase(Locale.current)
+                var start = 0
+                var i = lowercase.indexOf(highlightText)
+                while (i != -1) {
+                    append(text.subSequence(start, i).toString())
+                    withStyle(style = SpanStyle(color = MaterialTheme.colors.primary)) {
+                        append(text.subSequence(i, i + highlightText.length).toString())
+                    }
+                    start = i + highlightText.length
+                    i = lowercase.indexOf(highlightText, start)
+                }
+                append(text.subSequence(start, text.length).toString())
+            } else {
+                append(text)
+            }
+        }
     }
 }

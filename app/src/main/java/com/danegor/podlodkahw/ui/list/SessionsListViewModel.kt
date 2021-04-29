@@ -13,7 +13,6 @@ class SessionsListViewModel(
     private val repository: SessionsRepository
 ) : ViewModel() {
     private val baseList = mutableListOf<Session>()
-    private val baseUiList = mutableListOf<SessionUiModel>()
     private val sessionsListFlow = MutableSharedFlow<List<Session>>()
 
     private val _stateFlow = MutableStateFlow(SessionsListScreenState())
@@ -46,7 +45,7 @@ class SessionsListViewModel(
 
                 result
             }.collect {
-                _stateFlow.value = SessionsListScreenState(list = it)
+                _stateFlow.value = _stateFlow.value.copy(isLoading = false, list = it)
             }
         }
     }
@@ -73,15 +72,20 @@ class SessionsListViewModel(
     }
 
     fun onSearchText(input: String) {
+        _stateFlow.value = _stateFlow.value
+            .copy(searchText = input.trim().takeIf { it.isNotEmpty() })
+
         if (input.isBlank()) {
-            sessionsListFlow.tryEmit(baseList.toList())
+            viewModelScope.launch { sessionsListFlow.emit(baseList.toList()) }
             return
         }
 
-        sessionsListFlow.tryEmit(baseList.filter {
-            it.description.contains(input, ignoreCase = true) ||
-                it.speaker.contains(input, ignoreCase = true)
-        })
+        viewModelScope.launch {
+            sessionsListFlow.emit(baseList.filter {
+                it.description.contains(input, ignoreCase = true) ||
+                    it.speaker.contains(input, ignoreCase = true)
+            })
+        }
     }
 }
 
@@ -97,5 +101,6 @@ class SessionsListViewModelFactory(
 data class SessionsListScreenState(
     val isLoading: Boolean = false,
     val isError: Boolean = false,
-    val list: List<SessionUiModel>? = null
+    val list: List<SessionUiModel>? = null,
+    val searchText: String? = null
 )
