@@ -1,22 +1,18 @@
 package com.danegor.podlodkahw.ui.list
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.*
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.outlined.Search
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.ColorPainter
@@ -38,6 +34,8 @@ import com.danegor.podlodkahw.Route
 import com.danegor.podlodkahw.Session
 import com.danegor.podlodkahw.ThemedPreview
 import com.danegor.podlodkahw.data.SessionsRepository
+import com.danegor.podlodkahw.ui.ExitDialog
+import com.danegor.podlodkahw.ui.SearchField
 import com.google.accompanist.glide.rememberGlidePainter
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
@@ -63,7 +61,7 @@ fun SessionsListScreen(
             onRefresh = { viewModel.refresh() },
             modifier = Modifier.fillMaxSize()
         ) {
-            SessionsList2(
+            SessionsListStateRenderer(
                 state = state.value,
                 onSearchTextChanged = { viewModel.onSearchText(it) },
                 onCardClick = { session ->
@@ -91,7 +89,7 @@ fun SessionsListScreen(
 
 @ExperimentalFoundationApi
 @Composable
-fun SessionsList2(
+fun SessionsListStateRenderer(
     state: SessionsListScreenState,
     onSearchTextChanged: (String) -> Unit,
     onCardClick: (Session) -> Unit,
@@ -153,105 +151,6 @@ fun SessionsList(
                         isFavourite = item.isFavourite,
                         onCardClick = onCardClick,
                         onFavouriteClick = onFavouriteClick
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun ExitDialog(
-    onDismiss: () -> Unit,
-    onConfirm: () -> Unit
-) {
-    AlertDialog(
-        text = {
-            Text(
-                "Вы уверены, что хотите выйти из приложения?",
-                style = MaterialTheme.typography.body1
-            )
-        },
-        onDismissRequest = onDismiss,
-        confirmButton = {
-            TextButton(onClick = onConfirm) {
-                Text(
-                    "ДА",
-                    style = MaterialTheme.typography.button
-                )
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(
-                    "ОТМЕНА",
-                    style = MaterialTheme.typography.button
-                )
-            }
-        }
-    )
-}
-
-@Composable
-fun SessionFavouriteTitle() {
-    Text(
-        "Избранное",
-        modifier = Modifier.padding(8.dp),
-        style = MaterialTheme.typography.h6
-    )
-}
-
-@Composable
-fun SessionFavouritesUiModel(
-    list: List<Session>,
-    onCardClick: (Session) -> Unit
-) {
-    LazyRow {
-        items(count = list.size) { index ->
-            val session = list[index]
-            Card(
-                shape = RoundedCornerShape(12.dp),
-                modifier = Modifier
-                    .size(150.dp, 150.dp)
-                    .padding(8.dp)
-                    .clickable { onCardClick(session) },
-                elevation = 2.dp
-            ) {
-                Column(
-                    modifier = Modifier.padding(8.dp),
-                ) {
-                    Text(
-                        session.timeInterval,
-                        style = TextStyle(
-                            fontWeight = FontWeight.Medium,
-                            fontSize = 16.sp,
-                        ),
-                    )
-                    Text(
-                        session.date,
-                        style = TextStyle(
-                            fontWeight = FontWeight.Normal,
-                            fontSize = 14.sp,
-                        ),
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        session.speaker,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        style = TextStyle(
-                            fontWeight = FontWeight.Medium,
-                            fontSize = 14.sp,
-                        ),
-                    )
-                    Text(
-                        session.description,
-                        maxLines = 3,
-                        overflow = TextOverflow.Ellipsis,
-                        style = TextStyle(
-                            fontWeight = FontWeight.Normal,
-                            fontSize = 14.sp,
-                        ),
                     )
                 }
             }
@@ -377,59 +276,6 @@ fun SessionCard(
                 }
             }
         }
-    }
-}
-
-@Composable
-fun SearchField(
-    onTextChanged: (String) -> Unit
-) {
-    val text = rememberSaveable { mutableStateOf("") }
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp)
-            .border(
-                border = BorderStroke(1.dp, Color.LightGray),
-                shape = RoundedCornerShape(4.dp)
-            )
-    ) {
-        TextField(
-            value = text.value,
-            onValueChange = {
-                text.value = it
-                onTextChanged(it)
-            },
-            leadingIcon = {
-                Image(
-                    imageVector = Icons.Outlined.Search,
-                    colorFilter = ColorFilter.tint(Color.LightGray),
-                    contentDescription = null
-                )
-            },
-            trailingIcon = {
-                if (text.value.isNotEmpty()) {
-                    Image(
-                        imageVector = Icons.Filled.Clear,
-                        colorFilter = ColorFilter.tint(MaterialTheme.colors.onSurface),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .padding(8.dp)
-                            .clickable {
-                                text.value = ""
-                                onTextChanged("")
-                            }
-                    )
-                }
-            },
-            label = { Text("Поиск") },
-            modifier = Modifier.fillMaxWidth(),
-            colors = TextFieldDefaults.textFieldColors(
-                backgroundColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-                focusedIndicatorColor = Color.Transparent
-            )
-        )
     }
 }
 

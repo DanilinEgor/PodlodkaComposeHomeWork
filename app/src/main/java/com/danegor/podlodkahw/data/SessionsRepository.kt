@@ -6,14 +6,18 @@ import kotlinx.coroutines.flow.*
 import retrofit2.http.GET
 
 class SessionsRepository(private val api: SessionsListApi) {
+    private val sessionsList = mutableListOf<Session>()
     private val favouritesList = mutableListOf<String>()
     private val favouritesStateFlow = MutableStateFlow<List<String>>(emptyList())
 
     fun getFavourites(): StateFlow<List<String>> = favouritesStateFlow.asStateFlow()
 
     fun getSessionsList(): Flow<Result<List<Session>>> = flow {
-        delay(2000)
-        emit(Result.success(loadRemoteList()))
+        delay(1000)
+        val remoteList = loadRemoteList()
+        sessionsList.clear()
+        sessionsList.addAll(remoteList)
+        emit(Result.success(sessionsList))
     }.catch {
         emit(Result.failure(it))
     }
@@ -28,6 +32,10 @@ class SessionsRepository(private val api: SessionsListApi) {
         }
         favouritesStateFlow.value = favouritesList.toList()
         return true
+    }
+
+    fun getSession(sessionId: String): Session {
+        return sessionsList.first { it.id == sessionId }
     }
 
     private suspend fun loadRemoteList(): List<Session> = api.getSessionsList()

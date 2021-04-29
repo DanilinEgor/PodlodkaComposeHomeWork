@@ -46,7 +46,8 @@ class MainActivity : ComponentActivity() {
                         composable(Route.Info.getPattern()) {
                             SessionInfoScreen(
                                 sessionId = it.arguments?.getString("sessionId"),
-                                navController = navController
+                                navController = navController,
+                                sessionsRepository = appContainer.sessionsRepository
                             )
                         }
                     }

@@ -13,6 +13,7 @@ class SessionsListViewModel(
     private val repository: SessionsRepository
 ) : ViewModel() {
     private val baseList = mutableListOf<Session>()
+    private val baseUiList = mutableListOf<SessionUiModel>()
     private val sessionsListFlow = MutableSharedFlow<List<Session>>()
 
     private val _stateFlow = MutableStateFlow(SessionsListScreenState())
@@ -51,7 +52,7 @@ class SessionsListViewModel(
     }
 
     fun refresh() {
-        _stateFlow.value = SessionsListScreenState(isLoading = true)
+        _stateFlow.value = _stateFlow.value.copy(isLoading = true)
         viewModelScope.launch {
             repository.getSessionsList()
                 .flowOn(Dispatchers.IO)
@@ -93,7 +94,7 @@ class SessionsListViewModelFactory(
     }
 }
 
-class SessionsListScreenState(
+data class SessionsListScreenState(
     val isLoading: Boolean = false,
     val isError: Boolean = false,
     val list: List<SessionUiModel>? = null
