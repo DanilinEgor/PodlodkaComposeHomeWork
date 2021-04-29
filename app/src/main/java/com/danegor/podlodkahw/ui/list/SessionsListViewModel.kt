@@ -3,7 +3,7 @@ package com.danegor.podlodkahw.ui.list
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.danegor.podlodkahw.Session
+import com.danegor.podlodkahw.data.Session
 import com.danegor.podlodkahw.data.SessionsRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*

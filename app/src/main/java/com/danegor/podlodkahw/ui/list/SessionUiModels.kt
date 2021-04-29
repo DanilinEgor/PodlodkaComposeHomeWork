@@ -1,6 +1,6 @@
 package com.danegor.podlodkahw.ui.list
 
-import com.danegor.podlodkahw.Session
+import com.danegor.podlodkahw.data.Session
 
 sealed class SessionUiModel
 data class SessionCardUiModel(val session: Session, val isFavourite: Boolean) : SessionUiModel()

@@ -1,6 +1,5 @@
 package com.danegor.podlodkahw.data
 
-import com.danegor.podlodkahw.Session
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import retrofit2.http.GET

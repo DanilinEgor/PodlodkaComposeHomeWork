@@ -2,7 +2,7 @@ package com.danegor.podlodkahw.ui.info
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.danegor.podlodkahw.Session
+import com.danegor.podlodkahw.data.Session
 import com.danegor.podlodkahw.data.SessionsRepository
 
 class SessionInfoViewModel(

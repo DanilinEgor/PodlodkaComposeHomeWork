@@ -32,7 +32,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.navigate
 import com.danegor.podlodkahw.R
 import com.danegor.podlodkahw.Route
-import com.danegor.podlodkahw.Session
+import com.danegor.podlodkahw.data.Session
 import com.danegor.podlodkahw.ThemedPreview
 import com.danegor.podlodkahw.data.SessionsRepository
 import com.danegor.podlodkahw.ui.ExitDialog

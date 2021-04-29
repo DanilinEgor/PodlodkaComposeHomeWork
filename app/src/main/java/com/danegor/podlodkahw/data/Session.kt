@@ -1,4 +1,4 @@
-package com.danegor.podlodkahw
+package com.danegor.podlodkahw.data
 
 data class Session(
     val id: String,
