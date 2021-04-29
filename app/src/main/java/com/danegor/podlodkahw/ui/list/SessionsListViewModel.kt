@@ -71,9 +71,10 @@ class SessionsListViewModel(
         return repository.setSessionFavourite(sessionId, isFavourite)
     }
 
-    fun onSearchText(input: String) {
+    fun onSearchText(text: String) {
+        val input = text.trim()
         _stateFlow.value = _stateFlow.value
-            .copy(searchText = input.trim().takeIf { it.isNotEmpty() })
+            .copy(searchText = input.takeIf { it.isNotEmpty() })
 
         if (input.isBlank()) {
             viewModelScope.launch { sessionsListFlow.emit(baseList.toList()) }
