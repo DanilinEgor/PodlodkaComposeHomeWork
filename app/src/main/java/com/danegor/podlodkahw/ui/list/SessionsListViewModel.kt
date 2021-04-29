@@ -45,13 +45,13 @@ class SessionsListViewModel(
 
                 result
             }.collect {
-                _stateFlow.value = _stateFlow.value.copy(isLoading = false, list = it)
+                _stateFlow.value = _stateFlow.value.copy(isLoading = false, list = it, isError = false)
             }
         }
     }
 
     fun refresh() {
-        _stateFlow.value = _stateFlow.value.copy(isLoading = true)
+        _stateFlow.value = _stateFlow.value.copy(isLoading = true, isError = false)
         viewModelScope.launch {
             repository.getSessionsList()
                 .flowOn(Dispatchers.IO)
